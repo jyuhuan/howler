@@ -2,7 +2,7 @@
 
 A simple system for grading homework and sending email feedback to students. 
 
-![Howler](https://67.media.tumblr.com/tumblr_m9582g7D0M1qcggyvo1_r1_500.gif)
+![Howler](http://yuhuan.me/resource/img/howler.gif)
 
 ### Features
 - __Rubric management__ helps you ensure consistency in your grading. 
