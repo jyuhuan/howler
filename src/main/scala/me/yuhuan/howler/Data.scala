@@ -6,35 +6,30 @@ import scala.xml._
 /**
   * Created by yuhuan on 10/03/2016.
   */
-class Data(assignmentXmlStream: InputStream,
+class Data(rubricXmlStream: InputStream,
            studentsXmlStream: InputStream,
            gradingsXmlStream: InputStream) {
 
   //region Parse Assignment Definition
 
-  val assignment = loadAssignmentDefinition(XML.load(assignmentXmlStream))
+  val rubric = loadRubric(XML.load(rubricXmlStream))
   val students = loadStudentsDefinition(XML.load(studentsXmlStream))
   val gradings = loadGradings(XML.load(gradingsXmlStream))
 
   //endregion
 
-  val globalRules: Map[RuleId, Rule] = assignment.globalRules
-
-  val localRules: Map[(ProblemId, RuleId), Rule] = (for {
-    (pid, p) <- assignment.problems
-    (rid, r) <- p.rules
-  } yield (pid, rid) -> r).toMap
+  val rules: Map[RuleId, Rule] = rubric.globalRules ++
+    (for {
+      (pid, p) <- rubric.problems
+      (rid, r) <- p.rules
+    } yield s"$pid.$rid" -> r).toMap
 
   val bp = 0
 
-  //TODO: Let local rules override global rules, if same RuleId.
   def gradesOf(studentId: String, problemId: String): Double = {
-    var totalScore = assignment.problems(problemId).score
+    var totalScore = rubric.problems(problemId).score
     val rulesApplied = gradings(studentId).problemGradings(problemId)
-    rulesApplied foreach { ruleId =>
-      if (localRules contains problemId -> ruleId) totalScore += localRules(problemId -> ruleId).score
-      if (globalRules contains ruleId) totalScore += globalRules(ruleId).score
-    }
+    rulesApplied foreach { ruleId => totalScore += rules(ruleId).score }
     totalScore
   }
 
@@ -89,8 +84,8 @@ class Data(assignmentXmlStream: InputStream,
 
 
 
-  def loadAssignmentDefinition(x: xml.Node) = {
-    Assignment(
+  def loadRubric(x: xml.Node) = {
+    Rubric(
       id = x \@ "id",
       problems = (x \ "Problems" \ "Problem").map { p =>
         (p \@ "id") -> Problem(

@@ -12,12 +12,16 @@ object Howler extends App {
     arr(0) -> arr(1)
   }.toMap
 
-  val assignmentXmlPath = argsMap("-a")
+  val rubricXmlPath = argsMap("-r")
   val studentsXmlPath = argsMap("-s")
   val gradingsXmlPath = argsMap("-g")
+  val fromAddress = argsMap("-from")
+  val byLine = argsMap("-by")
+
+  val bp = 0
 
   val data = new Data(
-    assignmentXmlStream = Files.newInputStream(Paths.get(assignmentXmlPath)),
+    rubricXmlStream = Files.newInputStream(Paths.get(rubricXmlPath)),
     studentsXmlStream = Files.newInputStream(Paths.get(studentsXmlPath)),
     gradingsXmlStream = Files.newInputStream(Paths.get(gradingsXmlPath))
   )

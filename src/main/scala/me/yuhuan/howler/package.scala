@@ -5,7 +5,7 @@ package me.yuhuan
   */
 package object howler {
 
-  type AssignmentId = String
+  type RubricId = String
   type ProblemId = String
   type StudentId = String
   type RuleId = String
