@@ -7,4 +7,4 @@ A simple system for grading homework.
 ### Features
 - __Rubric management__ helps you ensure consistency in your grading. 
 - __Automatic feedback generation__ generates feedback which contains detailed explanations for penalties and bonuses for individual students and individual problems. 
-- __Built-in email sending__ sends those responses to students in a breeze.
+- __Built-in email sending__ sends those feedback to students in a breeze.
