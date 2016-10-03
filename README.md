@@ -1,6 +1,6 @@
 ## Howler
 
-A simple system for grading homework. 
+A simple system for grading homework and sending email feedback to students. 
 
 ![Howler](https://67.media.tumblr.com/tumblr_m9582g7D0M1qcggyvo1_r1_500.gif)
 
