@@ -16,11 +16,31 @@ class Data(assignmentXmlStream: InputStream,
   val students = loadStudentsDefinition(XML.load(studentsXmlStream))
   val gradings = loadGradings(XML.load(gradingsXmlStream))
 
-  def gradesOf(studentId: String): Double = ???
-  def rulesAppliedOn(studentId: String): Set[Rule] = ???
-  def penaltiesAppliedOn(studentId: String) = rulesAppliedOn(studentId).filter(_.score < 0)
-  def bonusesAppliedOn(studentId: String) = rulesAppliedOn(studentId).filter(_.score > 0)
+  //endregion
 
+  val globalRules: Map[RuleId, Rule] = assignment.globalRules
+
+  val localRules: Map[(ProblemId, RuleId), Rule] = (for {
+    (pid, p) <- assignment.problems
+    (rid, r) <- p.rules
+  } yield (pid, rid) -> r).toMap
+
+  val bp = 0
+
+  //TODO: Let local rules override global rules, if same RuleId.
+  def gradesOf(studentId: String, problemId: String): Double = {
+    var totalScore = assignment.problems(problemId).score
+    val rulesApplied = gradings(studentId).problemGradings(problemId)
+    rulesApplied foreach { ruleId =>
+      if (localRules contains problemId -> ruleId) totalScore += localRules(problemId -> ruleId).score
+      if (globalRules contains ruleId) totalScore += globalRules(ruleId).score
+    }
+    totalScore
+  }
+
+  def rulesAppliedOn(studentId: StudentId, problemId: ProblemId): Set[Rule] = ???
+  def penaltiesAppliedOn(studentId: StudentId, problemId: ProblemId) = rulesAppliedOn(studentId, problemId).filter(_.score < 0)
+  def bonusesAppliedOn(studentId: StudentId, problemId: ProblemId) = rulesAppliedOn(studentId, problemId).filter(_.score > 0)
 
   /**
     * The email generated for a student
@@ -63,13 +83,11 @@ class Data(assignmentXmlStream: InputStream,
     * </blockquote>
     * @return
     */
-  def generateEmails: Map[String, String] = {
+  def generateEmails: Map[StudentId, String] = {
     ???
   }
 
-  val bp = 0
 
-  //endregion
 
   def loadAssignmentDefinition(x: xml.Node) = {
     Assignment(
@@ -110,15 +128,15 @@ class Data(assignmentXmlStream: InputStream,
     }
   }
 
-  def loadGradings(x: xml.Node) = {
+  def loadGradings(x: xml.Node): Map[StudentId, Grading] = {
     (x \ "Grading").map { g =>
-      Grading(
+      (g \@ "studentId") -> Grading(
         studentId = g \@ "studentId",
         problemGradings = (g \ "ProblemGrading").map { p =>
           (p \@ "problemId") -> (p \@ "rules").split(' ').toSet
         }.toMap
       )
-    }
+    }.toMap
   }
 
 }
